@@ -1,0 +1,59 @@
+
+.axis line, .axis path {
+	fill: none;
+	stroke: #111;
+}
+
+.y.axis path {
+	display: none;
+}
+
+.tick line {
+	stroke-dasharray: 5,5;
+}
+
+.event .connector {
+	stroke-width: 1;
+	stroke: #888;
+}
+
+#display {
+	margin: 40 0 0 40;
+	float: center;
+}
+
+@font-face {
+	font-family: "liberation sans"; 
+	src: url('/static/LiberationSans-Regular.ttf');
+}
+@font-face {
+	font-family: "liberation bold"; 
+	src: url('/static/LiberationSans-Bold.ttf');
+}
+
+body {
+	font-family: "liberation sans"
+}
+#display {
+	margin: 10 0 10 20;
+}
+
+#display .title {
+	font-size: 1.5em;
+	font-family: "liberation bold";
+	border-bottom: 1px solid #CCC;
+	margin-bottom: 0px;
+}
+
+#display .subtext {
+	font-size: .8em;
+	margin: 5 0 0 10;
+}
+
+#display .author {
+	font-family: "liberation bold";
+	overflow: hidden;
+	float: left;
+	margin-right: 15px;
+}
+

@@ -1,6 +1,13 @@
 <html>
   <head>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.3.13/d3.js" ></script>
+    <style>
+	.axis line, .axis path {
+		fill: none;
+		shape-rendering: crisp-edges;
+		stroke: #111;
+	}
+    </style>
   </head>
   <body>
   hello world!
@@ -19,7 +26,88 @@
       }
     });
 
-    document.write(testData);
+    var data = testData;
+
+    categories = findCategories(data);		
+
+    chart = d3.select('#timeline');
+    margin = {top: 10, left: 100, bottom: 30, right: 10};
+    height = 300 - margin.top - margin.bottom; //inner height
+    width = 500 - margin.left - margin.right;  // inner width
+    
+    chart = chart.append('g')
+	.attr('class', 'inner chart')
+	.attr('transform', 'translate(' + margin.top, + ',' + margin.left + ')');
+
+    minDate = d3.min(data, function(obj){ return obj.date });
+    maxDate = d3.max(data, function(obj){ return obj.date });
+
+    //X axis
+    tScale = d3.time.scale()
+	.domain([minDate, maxDate])
+	.range([0,width]);
+
+    xAxis = d3.svg.axis()
+	.scale(tScale)
+	.orient("bottom");
+
+    chart.append('g')
+	.attr('class', 'x axis')
+	.attr('transform', 'translate(' + margin.left + ',' + height + ')')
+	.call(xAxis);
+       
+    //Y axis
+    catScale = d3.scale.ordinal()
+	.domain(categories)
+	.rangeRoundBands([0, height]);
+
+    yAxis = d3.svg.axis()
+	.scale(catScale)
+	.orient('left');
+
+    chart.append('g')
+	.attr('class', 'y axis')
+	.attr('transform', 'translate(' + margin.left + ',0)')
+	.call(yAxis); 
+
+    data.forEach(function(event){
+	chart.select('g').append('g')
+	     .data(event);
+    });
+
+   
+
+   function findCategories(data){ //give a set a list of event objects, return the top 3 categories
+	existing = {};
+	data.forEach(function(event) {
+		if (typeof event.issues === "string") {
+			var issue = event.issues;
+			if (!(event.issues in existing)) {
+				existing[issue] = 1;
+			} else {
+				existing[issue] += 1;	
+			}		
+		} else {
+			event.issues.forEach(function(issue) {
+				if ((!issue in existing)) {
+					existing[issue] = 1;
+				} else {
+					existing[issue] += 1
+				}
+			});
+		}
+	});
+	var topThree = [];	
+	Object.keys(existing).forEach(function(key){
+		topThree.push([key, existing[key]]);
+	});
+	topThree.sort(function(a, b) {return b[1] - a[1];});
+	topThree = topThree.slice(0,3);
+	topThree = topThree.map(function(e) {return e[0];});
+	return topThree;
+   }
+	
+
   </script>
 </body>
 </html>

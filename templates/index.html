@@ -4,9 +4,20 @@
     <style>
 	.axis line, .axis path {
 		fill: none;
-		shape-rendering: crisp-edges;
 		stroke: #111;
 	}
+	.y.axis path {
+		display: none;
+	}
+	.tick line {
+		stroke-dasharray: 5,5;
+	}
+	
+	.event .connector {
+		stroke-width: 1;
+		stroke: #888;
+	}
+
     </style>
   </head>
   <body>
@@ -29,13 +40,18 @@
     var data = testData;
 
     categories = findCategories(data);		
+    categories.push("none");
+    categories.reverse();
 
     chart = d3.select('#timeline');
     margin = {top: 10, left: 100, bottom: 30, right: 10};
-    height = 300 - margin.top - margin.bottom; //inner height
+    height = 200 - margin.top - margin.bottom; //inner height
     width = 500 - margin.left - margin.right;  // inner width
     
-    chart = chart.append('g')
+    chart = chart
+	.attr('width', width + margin.left + margin.right)
+	.attr('height', height + margin.top + margin.bottom)
+      .append('g')
 	.attr('class', 'innerChart')
 	.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
@@ -45,11 +61,12 @@
     //X axis
     tScale = d3.time.scale()
 	.domain([minDate, maxDate])
-	.range([0,width]);
+	.range([10,width-10]);
 
     xAxis = d3.svg.axis()
 	.scale(tScale)
-	.orient("bottom");
+	.orient("bottom")
+	.outerTickSize(0);
 
     chart.append('g')
 	.attr('class', 'x axis')
@@ -59,18 +76,19 @@
     //Y axis
     catScale = d3.scale.ordinal()
 	.domain(categories)
-	.rangeRoundBands([0, height]);
+	.rangePoints([0, height - 15], .3);
 
     yAxis = d3.svg.axis()
 	.scale(catScale)
-	.orient('left');
+	.orient('left')
+	.innerTickSize(-width);
 
     chart.append('g')
 	.attr('class', 'y axis')
 	.call(yAxis); 
 
     //fun
-    colors = d3.scale.category10()
+    colors = d3.scale.category20()
 	.domain(categories);
 
      //Binding data to graph
@@ -80,36 +98,49 @@
       .enter().append('g')
 	.attr('class', 'event')
 
-       gEvents.each(function (event, i) {
+   function addIssueCircle(select, event, issue) {
+	 select.append('circle')
+		.attr('r', 5)
+		.attr('cy', catScale(issue))
+		.attr('cx', tScale(event.date))
+		.style('fill', colors(issue));
+	}
+
+    function addMainCircle(select, event) {
+	select.append('circle')
+		.attr('r', 3)
+		.attr('cy', catScale('none'))
+		.attr('cx', tScale(event.date));
+    }
+
+    gEvents.each(function (event, i) {
 		select = d3.select(this);
+		
 		event.issues.forEach(function(issue){
-		     select.append('circle')
-			.attr('r', 10)
-			.attr('cy', catScale(issue))
-			.attr('cx', tScale(event.date))
-			.style('fill', colors(issue));
+		     if (categories.indexOf(issue) != -1) {
+			     var x = tScale(event.date);
+			     select.append('line')
+				.attr('class', 'connector')
+				.attr('x1', x)
+				.attr('x2', x)
+				.attr('y1', catScale("none"))
+				.attr('y2', catScale(issue))
+			     select.call(addIssueCircle, event, issue);
+	             }
 		});
+	     select.call(addMainCircle, event);
 	});
 
    function findCategories(data){ //given a list of event objects, return the top 3 categories
 	existing = {};
 	data.forEach(function(event) {
-		if (typeof event.issues === "string") {
-			var issue = event.issues;
-			if (!(event.issues in existing)) {
-				existing[issue] = 1;
-			} else {
-				existing[issue] += 1;	
-			}		
-		} else {
 			event.issues.forEach(function(issue) {
-				if ((!issue in existing)) {
+				if (!(issue in existing)) {
 					existing[issue] = 1;
 				} else {
 					existing[issue] += 1
 				}
 			});
-		}
 	});
 	var topThree = [];	
 	Object.keys(existing).forEach(function(key){

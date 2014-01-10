@@ -1,21 +1,65 @@
 <html>
-  <head>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.3.13/d3.js" ></script>
-    <link rel=stylesheet type=text/css href="/static/site.css">
-  </head>
-  <body>
-  <div id=display >
-  <p class=title >The History of The City Market</p>
-  <div class=subtext><div class=author>By nskelsey</div><div class=date>Mar 3, 2014</div></div>
-  <p class=body >The City Market has been around for over 40 years, its last move was to Water Street in 1993, which was only a "temporary" home.
-	 After the recent fire which burned down some of the buildings on site the people of Charlottesville
-         are looking for a good spot to build a permanent market place, for the next 40 years.
-  </p>
-  <div id=issuebox > </div>
-</div>
-  <svg id=timeline > 
-  </svg>
-  <script src="/static/timeline.js">
-  </script>
-</body>
+    <head>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.3.13/d3.js" ></script>
+        <link rel=stylesheet type=text/css href="/static/site.css">
+    </head>
+    <body>
+        <div id=widget > 
+        <div class=display >
+            <p class=title >The History of The City Market</p>
+            <div class=subtext><div class=author>By nskelsey</div><div class=date>Mar 3, 2014</div></div>
+            <p class=body >The City Market has been around for over 40 years, its last move was to Water Street in 1993, which was only a "temporary" home.
+            After the recent fire which burned down some of the buildings on site the people of Charlottesville
+            are looking for a good spot to build a permanent market place, for the next 40 years.
+            </p>
+            <div id=issuebox > </div>
+        </div>
+        </div>
+        <script src="/static/timeline.js"> </script>
+
+        <script>
+            // formats json returned from google correctly
+            function dealWithSheet(json) {
+                console.log(json);
+                table = json.table;        
+                col_titles = [];
+                for (var i = 0; i < table.rows[0].c.length; i++){
+                    col_titles.push(table.rows[0].c[i].v);
+                }
+                var tFormat = d3.time.format("%Y-%m");
+                var events = []
+                rows = table.rows;
+                for (var i = 1; i < table.rows.length; i++){
+                    var event = {};
+                    for (var j = 0; j < col_titles.length; j++){
+                        var title = col_titles[j],
+                        val = rows[i].c[j].v; 
+                        if (title === "issues") {
+                            // trim whitespace and filter blank entries
+                            val = val.split(',').map(function(s){ return s.trim()});
+                            val = val.filter(function(s) { return s || false });
+                        }
+                        if (title === "date") {
+                            val = tFormat.parse(val);
+                        }
+                        event[title] = val;
+                    }
+                    events.push(event);
+                } 
+                return events;
+            }
+
+            // a object that allows us to hook events into the charts scope
+            var listenerContainer = "";
+
+            //Load data from endpoint and construct chart
+            d3.json("/data", function(json) {
+                data = dealWithSheet(json);
+                var chart = timelineWidget();
+                var selection = d3.select("#widget").datum(data);
+                listenerContainer = chart(selection);
+
+            });
+        </script>
+    </body>
 </html>

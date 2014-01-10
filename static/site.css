@@ -17,7 +17,7 @@
 	stroke: #888;
 }
 
-#display {
+.display {
 	margin: 40 0 0 40;
 	float: center;
 }
@@ -34,24 +34,24 @@
 body {
 	font-family: "liberation sans"
 }
-#display {
+.display {
 	margin: 10 0 10 20;
         border-bottom: 1px solid #CCC;
 }
 
-#display .title {
+.display .title {
 	font-size: 1.5em;
 	font-family: "liberation bold";
 	border-bottom: 1px solid #CCC;
 	margin-bottom: 0px;
 }
 
-#display .subtext {
+.display .subtext {
 	font-size: .8em;
 	margin: 5 0 0 10;
 }
 
-#display .author {
+.display .author {
 	font-family: "liberation bold";
 	overflow: hidden;
 	float: left;

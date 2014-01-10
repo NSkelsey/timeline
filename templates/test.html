@@ -1,0 +1,63 @@
+<html>
+<head>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
+  </script>
+  <script type="text/javascript">
+    (function () {
+      var po = document.createElement('script');
+      po.type = 'text/javascript';
+      po.async = true;
+      po.src = 'https://plus.google.com/js/client:plusone.js?onload=start';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(po, s);
+    })();
+  </script>
+  <!-- END Pre-requisites -->
+</head>
+<body>
+This is the body
+<!-- Add where you want your sign-in button to render -->
+<div id="signinButton">
+  <span class="g-signin"
+    data-scope="https://www.googleapis.com/auth/drive"
+    data-clientid="199288599201-b215dp4cqooidbbvi4emu07t5hl5dcf9.apps.googleusercontent.com"
+    data-redirecturi="postmessage"
+    data-accesstype="offline"
+    data-cookiepolicy="single_host_origin"
+    data-callback="signInCallback">
+  </span>
+</div>
+<div id="results"></div>
+</body>
+<!-- Callback to my server -->
+<script>
+function signInCallback(authResult) {
+  if (authResult['code']) {
+
+    // Hide the sign-in button now that the user is authorized, for example:
+    $('#signinButton').attr('style', 'display: none');
+
+    // Send the code to the server
+    $.ajax({
+      type: 'POST',
+      url: 'oauth2callback',
+      contentType: 'application/octet-stream; charset=utf-8',
+      success: function(result) {
+        // Handle or verify the server response if necessary.
+
+        // Prints the list of people that the user has allowed the app to know
+        // to the console.
+        console.log(result);
+        
+      },
+      processData: false,
+      data: authResult['code']
+    });
+  } else if (authResult['error']) {
+    // There was an error.
+    console.log("access failed!" + authResult['error']);
+  }
+}
+</script>
+</html>
+

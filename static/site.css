@@ -36,6 +36,7 @@ body {
 }
 #display {
 	margin: 10 0 10 20;
+        border-bottom: 1px solid #CCC;
 }
 
 #display .title {

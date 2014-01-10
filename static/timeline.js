@@ -14,13 +14,15 @@
       }
     });
 
-    var data = testData;
-
+    var url = "/data"
+    var data;
+    d3.json(url, function(json) {
+    data = dealWithSheet(json) 
     categories = findCategories(data);		
     categories.reverse();
     categories.push("none");
     categories.reverse();
-
+    console.log(categories);
     chart = d3.select('#timeline');
     margin = {top: 10, left: 120, bottom: 30, right: 10};
     height = 300 - margin.top - margin.bottom; //inner height
@@ -71,7 +73,6 @@
     //fun
     colors = d3.scale.category20()
 	.domain(categories);
-
      //Binding data to graph
 
    var gEvents = chart.selectAll('.event')
@@ -189,5 +190,34 @@
 		.style('opacity', 1)
     }
     
+
+});
+    function dealWithSheet(json) {
+        console.log(json);
+        table = json.table;        
+        col_titles = [];
+        for (var i = 0; i < table.cols.length; i++){
+           col_titles.push(table.cols[i].label);
+        }
+        var tFormat = d3.time.format("%Y-%m");
+        var events = []
+        rows = table.rows;
+        for (var i = 0; i < table.rows.length; i++){
+            var event = {};
+            for (var j = 0; j < col_titles.length; j++){
+                var title = col_titles[j],
+                val = rows[i].c[j].v; 
+                if (title === "issues") {
+                    val = val.split(',')
+                }
+                if (title === "date") {
+                    val = tFormat.parse(val);
+                }
+                event[title] = val
+            }
+            events.push(event);
+        } 
+        return events;
+    }
 
 

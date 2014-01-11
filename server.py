@@ -7,6 +7,10 @@ app = Flask(__name__, static_url_path='/static')
 def main():
     return render_template("index.html")
 
+@app.route("/<chart>")
+def charts(chart):
+    return render_template(chart)
+
 @app.route("/data")
 def data(): # Just returns local data for now
     url = "https://spreadsheets.google.com/a/google.com/tq?key=0AqeLZN-5NKsPdGlpcnBqZ3lNZEsyY0hhZUFPREZBTnc"    

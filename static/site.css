@@ -1,3 +1,6 @@
+.axis {
+    font-size: .8em;
+}
 
 .axis line, .axis path {
     fill: none;
@@ -8,6 +11,10 @@
     display: none;
 }
 
+.y.axis text {
+    display: none;
+}
+
 .tick line {
     stroke-dasharray: 5,5;
 }
@@ -15,6 +22,10 @@
 .event .connector {
     stroke-width: 1;
     stroke: #888;
+}
+
+.innerChart .opaque {
+    fill: white;
 }
 
 .display {
@@ -69,6 +80,7 @@ body {
 }
 
 .issueContainer {
+    opacity: .7;
     font-size: .7em;
     position: absolute;
     right: 1;
@@ -91,4 +103,19 @@ body {
     -moz-box-shadow: #B3B3B3 1px 1px 0px;
     box-shadow: #B3B3B3 1px 1px 0px;
     text-align: center;
+    width: 100px;
+    height: 15px;
+    whitespace: nowrap;
+    overflow: hidden;
 }
+
+
+.context rect {
+    fill: #777;
+    opacity: .7;
+    border-radius: 2px;
+    border-right: 2px solid black;
+    border-left: 2px solid black;
+    padding: 2px;
+}
+

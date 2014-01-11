@@ -2,8 +2,8 @@ function timelineWidget() {
     // Constants
     var radius = 7.5,
     url = "/data",
-    margin = {top: 10, left: 120, bottom: 30, right: 10},
-    height = 300,
+    margin = {top: 10, left: 140, bottom: 15, right: 10},
+    height = 200,
     width = 700;
 
     // The root selection of this chart. needed for callbacks and my sanity
@@ -13,20 +13,19 @@ function timelineWidget() {
         root = selection;
         var display = root.select(".display")
             .attr('class', 'display')
-            .style('height', 175)
+            .style('height', 200)
             .style('width', width);
         // does nothing for now
         var svg = selection.append("svg");
 
-        svg.attr("width", width)
-           .attr("height", height);
-        
         innerWidth = width - margin.left - margin.right;
         innerHeight = height - margin.top - margin.bottom;
+        margin2 = {top: height + margin.top + margin.bottom, left: 140, bottom: 30, right: 10};
+        height2 = 50
 
-        console.log(svg);
-        console.log(data)
-
+        svg.attr("width", width)
+           .attr("height", height + margin.top + margin.bottom + height2 + margin2.bottom);
+        
         categories = findCategories(data);		
         categories.reverse();
         categories.push("none");
@@ -37,27 +36,68 @@ function timelineWidget() {
             .attr('class', 'innerChart')
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-        minDate = d3.min(data, function(obj){ return obj.date });
-        maxDate = d3.max(data, function(obj){ return obj.date });
+        context = svg.append("g")
+            .attr("class", "context")
+            .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+        var today = new Date("2014-1");
+        var yesterday = new Date("2013-8");
+        var dateInit = [yesterday, today];
+        var minDate = d3.min(data, function(obj){ return obj.date });
+        var maxDate = d3.max(data, function(obj){ return obj.date });
 
         //X axis
         tScale = d3.time.scale()
-            .domain([minDate, maxDate])
-            .range([10,innerWidth-10]);
+            .domain(dateInit)
+            .range([margin.right, innerWidth - margin.right])
 
         xAxis = d3.svg.axis()
             .scale(tScale)
+            .ticks(5)
             .orient("bottom");
 
         innerChart.append('g')
             .attr('class', 'x axis')
             .attr('transform', 'translate(0,' + innerHeight + ')')
             .call(xAxis);
+        
+       //Second x Axis for context
+
+         tScale2 = d3.time.scale()
+            .domain([minDate, today])
+            .range([margin.right, innerWidth - margin.right])
+
+         xAxis2 = d3.svg.axis()
+            .scale(tScale2)
+            .ticks(8)
+            .orient("bottom");
+
+         context.append("g")
+            .attr("class", 'x axis')
+            .attr("transform", "translate(0," + height2 + ")")
+            .call(xAxis2);
+
+         brush = d3.svg.brush()
+            .x(tScale2)
+            .extent(dateInit)
+            .on("brush", brushed);
+
+         context.append("g")
+            .attr("class", "x brush")
+            .call(brush);
+
+         context.selectAll('rect')
+            .attr("height", height2);
+
 
         //Y axis
         catScale = d3.scale.ordinal()
             .domain(categories)
             .rangePoints([0, innerHeight - 15], .3);
+
+        catScale2 = d3.scale.ordinal()
+            .domain(categories)
+            .rangePoints([20, height2 - 10]);
 
         yAxis = d3.svg.axis()
             .scale(catScale)
@@ -72,6 +112,13 @@ function timelineWidget() {
         colors = d3.scale.category20()
             .domain(categories);
         
+        // Zoom and pan
+        function brushed() {
+            tScale.domain(brush.empty() ? tScale2.domain() : brush.extent());
+            innerChart.selectAll(".event").call(bubbleDraw);
+            innerChart.select(".x.axis").call(xAxis);
+        }
+
         //Binding data to graph
         var gEvents = innerChart.selectAll('.event')
             .data(data)
@@ -80,6 +127,22 @@ function timelineWidget() {
             .on('mouseover', eventSelected)
             .on('mouseout', eventDeselected);
 
+        bubbleDraw(gEvents);
+
+        // now we draw abunch of little black circles for context
+        var contextG = context.selectAll('.event')
+            .data(data)
+          .enter().append('circle')
+            .attr('class', 'event')
+            .attr('r', 3)
+            .attr('cx', function(d){ return tScale2(d.date) })
+            .attr('cy', function(d){
+                console.log(d);
+                var possible = d.issues[0];
+                return possible ? catScale2(possible) : catScale2("none");});
+
+
+        
         // helper functions for main display loop
         function addIssueCircle(select, event, issue) {
             select.append('circle')
@@ -106,9 +169,24 @@ function timelineWidget() {
             }
 
         }
+        // TODO find farthest
 
+        //may need to become a function
         // main display loop
-        gEvents.each(function (event, i) {
+       function bubbleDraw(selection) {
+        selection.selectAll("circle").remove();
+        selection.selectAll("line").remove();
+        selection.selectAll(".opaque").remove();
+
+        selection.select(function() { this.parentNode.appendChild(this) })
+          .append("rect")
+            .attr("class", "opaque")
+            .attr("opacity", ".5")
+            .attr("width", margin.left)
+            .attr("height", innerHeight)
+            .attr("x", -margin.left);
+
+        selection.each(function (event, i) {
             select = d3.select(this);
             event.issues.forEach(function(issue){
                 if (categories.indexOf(issue) != -1) {
@@ -124,6 +202,8 @@ function timelineWidget() {
             });
             select.call(addMainCircle, event);
         });
+
+    }
 
         function findCategories(data){ //given a list of event objects, return the top 3 categories
             existing = {};
@@ -141,10 +221,11 @@ function timelineWidget() {
                 topThree.push([key, existing[key]]);
             });
             topThree.sort(function(a, b) {return b[1] - a[1];});
-            topThree = topThree.slice(0,3);
+         //   topThree = topThree.slice(0,3);
             topThree = topThree.map(function(e) {return e[0];});
             return topThree;
         }
+
 
     }
     chart.root = function() {

@@ -1,60 +1,94 @@
 
 .axis line, .axis path {
-	fill: none;
-	stroke: #111;
+    fill: none;
+    stroke: #111;
 }
 
 .y.axis path {
-	display: none;
+    display: none;
 }
 
 .tick line {
-	stroke-dasharray: 5,5;
+    stroke-dasharray: 5,5;
 }
 
 .event .connector {
-	stroke-width: 1;
-	stroke: #888;
+    stroke-width: 1;
+    stroke: #888;
 }
 
 .display {
-	margin: 40 0 0 40;
-	float: center;
+    margin: 40 0 0 40;
+    float: center;
 }
 
 @font-face {
-	font-family: "liberation sans"; 
-	src: url('/static/LiberationSans-Regular.ttf');
+    font-family: "liberation sans"; 
+    src: url('/static/LiberationSans-Regular.ttf');
 }
 @font-face {
-	font-family: "liberation bold"; 
-	src: url('/static/LiberationSans-Bold.ttf');
+    font-family: "liberation bold"; 
+    src: url('/static/LiberationSans-Bold.ttf');
 }
 
 body {
-	font-family: "liberation sans"
+    font-family: "liberation sans"
 }
 .display {
-	margin: 10 0 10 20;
-        border-bottom: 1px solid #CCC;
+    margin: 10 0 10 20;
+    border-bottom: 5px double #CCC;
+    position: relative;
+}
+
+.display .body {
+    margin-top: 10px;
 }
 
 .display .title {
-	font-size: 1.5em;
-	font-family: "liberation bold";
-	border-bottom: 1px solid #CCC;
-	margin-bottom: 0px;
+    font-size: 1.5em;
+    font-family: "liberation bold";
+    border-bottom: 2px solid #CCC;
+    margin-bottom: 0px;
 }
 
 .display .subtext {
-	font-size: .8em;
-	margin: 5 0 0 10;
+    font-size: .8em;
+    margin: 5 0 0 10;
+    height: 20px;
 }
 
 .display .author {
-	font-family: "liberation bold";
-	overflow: hidden;
-	float: left;
-	margin-right: 15px;
+    font-family: "liberation bold";
+    overflow: hidden;
+    float: left;
+    margin-right: 15px;
 }
 
+.display .date {
+    display: inline;
+}
+
+.issueContainer {
+    font-size: .7em;
+    position: absolute;
+    right: 1;
+    bottom: 2;
+}
+
+.issueContainer div {
+    margin-bottom: 3px;
+    background-color:#DDD;
+    -moz-background-clip: padding;
+    -webkit-background-clip: padding;
+    background-clip: padding-box;
+    border: 2px solid #DDD;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    padding: 2px;
+    padding-top: 4px;
+    -webkit-box-shadow: #B3B3B3 1px 0px 0px;
+    -moz-box-shadow: #B3B3B3 1px 1px 0px;
+    box-shadow: #B3B3B3 1px 1px 0px;
+    text-align: center;
+}

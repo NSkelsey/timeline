@@ -183,8 +183,18 @@ function timelineWidget() {
             .text(event.title);
         refD.select('.body')
             .text("Lorem ipsum doloret sibi wub ipsum sed comericut");
-        refD.select('.issuebox')
-            .style('color', colors(event.issues[0]));
+        var ibox = refD.select('.issueContainer').selectAll('div')
+            .data(event.issues);
+
+        var iEnter = ibox.enter().append("div")
+                    .attr("class", "live")  
+
+        ibox.style('background-color', function(d){ return colors(d)})
+            .text(function(d){ return d })
+            .style('border-color', function(d){ return colors(d)}); 
+
+        var iExit = ibox.exit().remove();
+
         refD.select('.author')
             .text('By nskelsey');
 

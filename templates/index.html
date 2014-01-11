@@ -4,15 +4,23 @@
         <link rel=stylesheet type=text/css href="/static/site.css">
     </head>
     <body>
+
+
         <div id=widget > 
         <div class=display >
             <p class=title >The History of The City Market</p>
-            <div class=subtext><div class=author>By nskelsey</div><div class=date>Mar 3, 2014</div></div>
+            <div class=subtext>
+               <div class=author>By nskelsey</div>
+                <div class=date>Mar 3, 2014</div>
+            </div>
+                
             <p class=body >The City Market has been around for over 40 years, its last move was to Water Street in 1993, which was only a "temporary" home.
             After the recent fire which burned down some of the buildings on site the people of Charlottesville
             are looking for a good spot to build a permanent market place, for the next 40 years.
             </p>
-            <div id=issuebox > </div>
+                 <div class=issueContainer >
+                    <div class=empty>CC '14</div>
+                </div>
         </div>
         </div>
         <script src="/static/timeline.js"> </script>
@@ -49,16 +57,12 @@
                 return events;
             }
 
-            // a object that allows us to hook events into the charts scope
-            var listenerContainer = "";
-
             //Load data from endpoint and construct chart
             d3.json("/data", function(json) {
                 data = dealWithSheet(json);
-                var chart = timelineWidget();
+                var chart = timelineWidget(); //width(599) sets width
                 var selection = d3.select("#widget").datum(data);
-                listenerContainer = chart(selection);
-
+                chart(selection);
             });
         </script>
     </body>

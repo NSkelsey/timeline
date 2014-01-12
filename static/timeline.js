@@ -6,12 +6,8 @@ function timelineWidget() {
     height = 200,
     width = 700;
 
-    // The root selection of this chart. needed for callbacks and my sanity
-    var root;
-
     function chart(selection) {
-        root = selection;
-        var display = root.select(".display")
+        var display = selection.select(".display")
             .attr('class', 'display')
             .style('height', 200)
             .style('width', width);
@@ -176,9 +172,9 @@ function timelineWidget() {
        function bubbleDraw(selection) {
         selection.selectAll("circle").remove();
         selection.selectAll("line").remove();
-        selection.selectAll(".opaque").remove();
-
-        selection.select(function() { this.parentNode.appendChild(this) })
+        // must be here because it must sit on top of circles
+        d3.select(".innerChart").selectAll(".opaque").remove();
+        d3.select(".innerChart")
           .append("rect")
             .attr("class", "opaque")
             .attr("opacity", ".5")
@@ -227,9 +223,64 @@ function timelineWidget() {
         }
 
 
-    }
-    chart.root = function() {
-        return root;
+        function eventSelected(d, i) {
+            var element = this;
+            updateDisplay(element.__data__);
+            grayOut(element);
+        }
+
+
+        function eventDeselected(d, i) {
+            var element = this;
+            grayIn(element);
+        }
+
+        function updateDisplay(event) { // takes an event object and populates the display with it
+            var refD = display;
+            refD.select('.title')
+                .text(event.title);
+            refD.select('.body')
+                .text("Lorem ipsum doloret sibi wub ipsum sed comericut");
+            var ibox = refD.select('.issueContainer').selectAll('div')
+                .data(event.issues);
+
+            var iEnter = ibox.enter().append("div")
+                        .attr("class", "live")  
+
+            ibox.style('background-color', function(d){ return colors(d)})
+                .text(function(d){ return d })
+                .style('border-color', function(d){ return colors(d)}); 
+
+            var iExit = ibox.exit().remove();
+
+            refD.select('.author')
+                .text('By nskelsey');
+
+            var dateS = event.date.toDateString();
+            dateS = dateS.substring(4);
+            dateS = dateS.replace(/\s0/, ' ');
+            dateS = dateS.substring(0,3) + '.' + dateS.substring(3);	
+
+            refD.select('.date')
+                .text(dateS);
+        }
+
+        function grayOut(elem){
+            var g = d3.select(elem)
+                .attr('class', "event focus");
+            innerChart.selectAll('.event:not(.focus)')
+                .transition()
+                .style('opacity', .5);
+        }
+
+        function grayIn(elem) {
+            var g = d3.select(elem)
+                .attr('class', 'event');
+            innerChart.selectAll('.event')
+                .transition()
+                .style('opacity', 1)
+        }
+
     }
 
     chart.height = function(value) {
@@ -244,66 +295,5 @@ function timelineWidget() {
         width = value;
         return chart;
     }
-
-    //NEEDS thinking
-    function eventSelected(d, i) {
-        var element = this;
-        updateDisplay(element.__data__);
-        grayOut(element);
-    }
-
-
-    function eventDeselected(d, i) {
-        var element = this;
-        grayIn(element);
-    }
-
-    function updateDisplay(event) { // takes an event object and populates the display with it
-        var refD = chart.root().select(".display");
-        refD.select('.title')
-            .text(event.title);
-        refD.select('.body')
-            .text("Lorem ipsum doloret sibi wub ipsum sed comericut");
-        var ibox = refD.select('.issueContainer').selectAll('div')
-            .data(event.issues);
-
-        var iEnter = ibox.enter().append("div")
-                    .attr("class", "live")  
-
-        ibox.style('background-color', function(d){ return colors(d)})
-            .text(function(d){ return d })
-            .style('border-color', function(d){ return colors(d)}); 
-
-        var iExit = ibox.exit().remove();
-
-        refD.select('.author')
-            .text('By nskelsey');
-
-        var dateS = event.date.toDateString();
-        dateS = dateS.substring(4);
-        dateS = dateS.replace(/\s0/, ' ');
-        dateS = dateS.substring(0,3) + '.' + dateS.substring(3);	
-
-        refD.select('.date')
-            .text(dateS);
-    }
-
-    function grayOut(elem){
-        var g = d3.select(elem)
-            .attr('class', "event focus");
-        innerChart.selectAll('.event:not(.focus)')
-            .transition()
-            .style('opacity', .5);
-    }
-
-    function grayIn(elem) {
-        var g = d3.select(elem)
-            .attr('class', 'event');
-        innerChart.selectAll('.event')
-            .transition()
-            .style('opacity', 1)
-    }
-
-
     return chart;
 }

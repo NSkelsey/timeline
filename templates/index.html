@@ -24,39 +24,9 @@
         </div>
         </div>
         <script src="/static/timeline.js"> </script>
+        <script src="/static/helpers.js"> </script>
 
         <script>
-            // formats json returned from google correctly
-            function dealWithSheet(json) {
-                console.log(json);
-                table = json.table;        
-                col_titles = [];
-                for (var i = 0; i < table.rows[0].c.length; i++){
-                    col_titles.push(table.rows[0].c[i].v);
-                }
-                var tFormat = d3.time.format("%Y-%m");
-                var events = []
-                rows = table.rows;
-                for (var i = 1; i < table.rows.length; i++){
-                    var event = {};
-                    for (var j = 0; j < col_titles.length; j++){
-                        var title = col_titles[j],
-                        val = rows[i].c[j].v; 
-                        if (title === "issues") {
-                            // trim whitespace and filter blank entries
-                            val = val.split(',').map(function(s){ return s.trim()});
-                            val = val.filter(function(s) { return s || false });
-                        }
-                        if (title === "date") {
-                            val = tFormat.parse(val);
-                        }
-                        event[title] = val;
-                    }
-                    events.push(event);
-                } 
-                return events;
-            }
-
             //Load data from endpoint and construct chart
             d3.json("/data", function(json) {
                 data = dealWithSheet(json);

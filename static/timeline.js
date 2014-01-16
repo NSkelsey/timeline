@@ -14,10 +14,10 @@ function timelineWidget() {
         // does nothing for now
         var svg = selection.append("svg");
 
-        innerWidth = width - margin.left - margin.right;
-        innerHeight = height - margin.top - margin.bottom;
-        margin2 = {top: height + margin.top + margin.bottom, left: 140, bottom: 30, right: 10};
-        height2 = 50
+        var innerWidth = width - margin.left - margin.right;
+        var innerHeight = height - margin.top - margin.bottom;
+        var margin2 = {top: height + margin.top + margin.bottom, left: 140, bottom: 30, right: 10};
+        var height2 = 50;
 
         svg.attr("width", width)
            .attr("height", height + margin.top + margin.bottom + height2 + margin2.bottom);
@@ -36,8 +36,8 @@ function timelineWidget() {
             .attr("class", "context")
             .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 
-        var today = new Date("2014-1");
-        var yesterday = new Date("2013-8");
+        var today = new Date(2014, 1, 4);
+        var yesterday = new Date(2013, 10, 4);
         var dateInit = [yesterday, today];
         var minDate = d3.min(data, function(obj){ return obj.date });
         var maxDate = d3.max(data, function(obj){ return obj.date });
